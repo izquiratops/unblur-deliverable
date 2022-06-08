@@ -68,29 +68,31 @@ var Grid: {
 
 
 let onInit = () => {
-    //This function is called at the beginning for initializing the grid
+    // This function is called at the beginning for initializing the grid
 };
 
-let setnumberofcolumns = (newvalue) => {
-    //This function is called when the user wants to change the number of slots per row shown in the grid
+let setNumberOfColumns = (newValue) => {
+    // This function is called when the user wants to change the number of slots per row shown in the grid
 }
 
 let onSlotSelected = (index) => {
-    //This function is called when a slot is selected by the user and needs to be set to busy. The input variable 'index' is the position in the array of the selected slot.
+    // This function is called when a slot is selected by the user and needs to be set to busy.
+    // The input variable 'index' is the position in the array of the selected slot.
 }
 
 let onSlotClosed = (index) => {
-    //This function is called when the user 'closes' a slot meaning that it won't be busy anymore until gets selected again. The input variable 'index' is the position in the array of the closed slot.
+    // This function is called when the user 'closes' a slot meaning that it won't be busy anymore
+    // until gets selected again. The input variable 'index' is the position in the array of the closed slot.
 }
 
 let getTotalNumberOfSlots = () => {
-    //This function should compute and return the total number of existing slots in the grid
+    // This function should compute and return the total number of existing slots in the grid
 };
 
 let gettingNumberOfBusySlots = () => {
-    //This function should compute and return the total number of existing busy slots in the grid
+    // This function should compute and return the total number of existing busy slots in the grid
 };
 
 let getNumberOfEmpty = () => {
-    //This function should compute and return the total number of existing empty slots in the grid
+    // This function should compute and return the total number of existing empty slots in the grid
 };
