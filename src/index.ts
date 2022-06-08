@@ -18,10 +18,10 @@ export class Grid {
         this.onInit();
     }
 
-    get totalNumberOfSlots(): number {
+    get numberOfSlots(): number {
         return this._currentSlots.length;
     }
-    
+
     get numberOfBusySlots(): number {
         const busySlots = this._currentSlots.filter(
             slot => slot.state === 'BUSY'
@@ -30,7 +30,7 @@ export class Grid {
         return busySlots.length;
     }
 
-    get numberOfEmpty(): number {
+    get numberOfEmptySlots(): number {
         const emptySlots = this._currentSlots.filter(
             slot => slot.state === 'EMPTY'
         );
@@ -38,7 +38,7 @@ export class Grid {
         return emptySlots.length;
     }
 
-    // TODO: The Grid NEVER has an incompleted row
+    // TODO: The Grid NEVER has an uncompleted row
     // When the number of columns change the grid must fit the content properly
     set numberOfColumns(value: ColumnRange) {
         this._numberOfColumns = value;
@@ -66,6 +66,6 @@ export class Grid {
             throw Error('oh no');
         }
     }
-    
+
 
 }
