@@ -1,9 +1,3 @@
-// TODO: Ask about --> 9 - The User CAN NOT add or delete slots directly,
-// it can only be modified through changing slots status or the number of ROWS??
-// Should be columns ¿right?
-
-// TODO: Ask: ¿there's a way that a slot could be deleted?
-
 interface Slot {
     state: 'EMPTY' | 'BUSY',
 }
@@ -16,6 +10,7 @@ export class Grid {
 
     private readonly MIN_ROW_SIZE = 2;
     private readonly MIN_EMPTY_SLOT_SIZE = 2;
+
     private _currentSlots: Array<Slot>;
     private _numberOfColumns: ColumnRange;
 
@@ -46,43 +41,84 @@ export class Grid {
         return emptySlots.length;
     }
 
-    set numberOfColumns(value: ColumnRange) {
-        this._numberOfColumns = value;
-    }
-
     onInit() {
-        this.fitRowContent();
+        this._updateGridContent();
     }
 
-    onSlotSelected(index: number) {
+    // This method has a ColumnRange type, this way any number other than
+    // 1, 2 or 3 will be rejected.
+    setNumberOfColumns(value: ColumnRange): void {
+        this._numberOfColumns = value;
+
+        this._updateGridContent();
+    }
+
+    onSlotSelected(index: number): void {
         const slot = this._fetchSlot(index);
         slot.state = 'BUSY';
+
+        this._updateGridContent();
     }
 
-    onSlotClosed(index: number) {
+    onSlotClosed(index: number): void {
         const slot = this._fetchSlot(index);
         slot.state = 'EMPTY';
+
+        this._purgeEmptySlots();
     }
 
-    private fitRowContent() {
-        // Make sure to have at least 2 empty slots
-        while(this.numberOfEmptySlots < this.MIN_EMPTY_SLOT_SIZE) {
+    private _updateGridContent(): void {
+        // Makes sure to have *at least* 2 empty slots
+        while (this.numberOfEmptySlots < this.MIN_EMPTY_SLOT_SIZE) {
             this._insertEmptySlot();
         }
 
-        // With the specified number of columns AND current number of slots,
-        // set the properly padding to get a minimum size of 2 rows.
-        while ((this.numberOfSlots / this._numberOfColumns) < this.MIN_ROW_SIZE) {
-            this._insertEmptySlot();
+        while (true) {
+            const rows = this.numberOfSlots / this._numberOfColumns;
+            // Do we have at least 2 rows?
+            const isAboveMinRowSize = rows >= this.MIN_ROW_SIZE;
+            // Is the last row filled with slots?
+            const slotsFitsColumnSize = Number.isInteger(rows);
+
+            // console.debug(rows, isAboveMinRowSize, slotsFitsColumnSize);
+            if (isAboveMinRowSize && slotsFitsColumnSize) {
+                // Everything is fine, getting out of the loop
+                break;
+            } else {
+                this._insertEmptySlot();
+            }
+        }
+    }
+
+    // TODO: this is not tested yet
+    private _purgeEmptySlots(): void {
+        const rows = this.numberOfSlots / this._numberOfColumns;
+        const id = (rows - 1) * this._numberOfColumns;
+        const lastRow = this._currentSlots.slice(-id);
+        const emptyLength = lastRow.reduce((acc, curr) =>
+            curr.state === 'EMPTY'
+                ? acc++
+                : acc
+            , 0);
+
+        const isAboveMinRowSize = (rows - 1) >= this.MIN_ROW_SIZE;
+        const isAboveMinEmptySlots = (this.numberOfSlots - emptyLength) >= this.MIN_EMPTY_SLOT_SIZE;
+        const lastRowIsAllEmpty = emptyLength === this._numberOfColumns;
+
+        if (isAboveMinRowSize && isAboveMinEmptySlots && lastRowIsAllEmpty) {
+            // proceed to delete
+        } else {
+            // do not
         }
     }
 
     private _fetchSlot(index: number): Slot {
         const slot = this._currentSlots[index];
+
         if (slot) {
             return slot;
         } else {
-            throw Error('oh no');
+            throw Error('bad index!');
         }
     }
 
