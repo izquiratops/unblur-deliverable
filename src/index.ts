@@ -90,11 +90,11 @@ export class Grid {
         }
     }
 
-    // TODO: this is not tested yet
+    // TODO: this isn't tested yet
     private _purgeEmptySlots(): void {
         const rows = this.numberOfSlots / this._numberOfColumns;
-        const id = (rows - 1) * this._numberOfColumns;
-        const lastRow = this._currentSlots.slice(-id);
+        const lastRowIdx = (rows - 1) * this._numberOfColumns;
+        const lastRow = this._currentSlots.slice(-lastRowIdx);
         const emptyLength = lastRow.reduce((acc, curr) =>
             curr.state === 'EMPTY'
                 ? acc++
@@ -106,9 +106,7 @@ export class Grid {
         const lastRowIsAllEmpty = emptyLength === this._numberOfColumns;
 
         if (isAboveMinRowSize && isAboveMinEmptySlots && lastRowIsAllEmpty) {
-            // proceed to delete
-        } else {
-            // do not
+            this._currentSlots.splice(-lastRowIdx);
         }
     }
 
