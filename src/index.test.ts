@@ -9,6 +9,8 @@ describe("Grid", () => {
       //      Col1
       // Row1 EMPTY
       // Row2 EMPTY
+      grid.debugGrid();
+
       expect(grid.numberOfSlots).toBe(2);
       expect(grid.numberOfEmptySlots).toBe(2);
       expect(grid.numberOfBusySlots).toBe(0);
@@ -21,6 +23,8 @@ describe("Grid", () => {
       //      Col1   Col2
       // Row1 EMPTY  EMPTY
       // Row2 EMPTY  EMPTY
+      grid.debugGrid();
+
       expect(grid.numberOfSlots).toBe(4);
       expect(grid.numberOfEmptySlots).toBe(4);
       expect(grid.numberOfBusySlots).toBe(0);
@@ -37,6 +41,8 @@ describe("Grid", () => {
       //      Col1   Col2   Col3
       // Row1 EMPTY  EMPTY  EMPTY
       // Row2 EMPTY  EMPTY  EMPTY
+      grid.debugGrid();
+
       expect(grid.numberOfSlots).toBe(6);
       expect(grid.numberOfEmptySlots).toBe(6);
       expect(grid.numberOfBusySlots).toBe(0);
@@ -55,9 +61,32 @@ describe("Grid", () => {
       // Row1 BUSY   BUSY
       // Row2 BUSY   EMPTY
       // Row3 EMPTY  EMPTY
+      grid.debugGrid();
+
       expect(grid.numberOfSlots).toBe(6);
       expect(grid.numberOfEmptySlots).toBe(3);
       expect(grid.numberOfBusySlots).toBe(3);
+    });
+  });
+
+
+  describe("Remove BUSY slots", () => {
+    it("Force to remove last Row", () => {
+      const grid = new Grid();
+
+      grid.onSlotSelected(0);
+      grid.onSlotSelected(1);
+      grid.onSlotSelected(2);
+      grid.onSlotClosed(1);
+
+      //      Col1   Col2
+      // Row1 BUSY   EMPTY
+      // Row2 BUSY   EMPTY
+      grid.debugGrid();
+
+      expect(grid.numberOfSlots).toBe(4);
+      expect(grid.numberOfEmptySlots).toBe(2);
+      expect(grid.numberOfBusySlots).toBe(2);
     });
   });
 });

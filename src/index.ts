@@ -42,7 +42,7 @@ export class Grid {
     }
 
     onInit() {
-        this._updateGridContent();
+        this._updateSlots();
     }
 
     // This method has a ColumnRange type, this way any number other than
@@ -50,64 +50,70 @@ export class Grid {
     setNumberOfColumns(value: ColumnRange): void {
         this._numberOfColumns = value;
 
-        this._updateGridContent();
+        this._updateSlots();
     }
 
     onSlotSelected(index: number): void {
         const slot = this._fetchSlot(index);
         slot.state = 'BUSY';
 
-        this._updateGridContent();
+        this._updateSlots();
     }
 
     onSlotClosed(index: number): void {
         const slot = this._fetchSlot(index);
         slot.state = 'EMPTY';
 
-        this._purgeEmptySlots();
+        this._updateSlots();
     }
 
-    private _updateGridContent(): void {
-        // Makes sure to have *at least* 2 empty slots
-        while (this.numberOfEmptySlots < this.MIN_EMPTY_SLOT_SIZE) {
-            this._insertEmptySlot();
-        }
+    debugGrid(): void {
+        let message = '';
 
-        while (true) {
-            const rows = this.numberOfSlots / this._numberOfColumns;
-            // Do we have at least 2 rows?
-            const isAboveMinRowSize = rows >= this.MIN_ROW_SIZE;
-            // Is the last row filled with slots?
-            const slotsFitsColumnSize = Number.isInteger(rows);
-
-            // console.debug(rows, isAboveMinRowSize, slotsFitsColumnSize);
-            if (isAboveMinRowSize && slotsFitsColumnSize) {
-                // Everything is fine, getting out of the loop
-                break;
-            } else {
-                this._insertEmptySlot();
+        const states = this._currentSlots.map(el => el.state);
+        for (let row = 0; row < this.numberOfSlots; row = row + this._numberOfColumns) {
+            for (let col = 0; col < this._numberOfColumns; col++) {
+                message += states[row + col] + '\t';
             }
+            message += '\n';
+        }
+
+        console.debug(message);
+    }
+
+    private _updateSlots(): void {
+        const rows = this.numberOfSlots / this._numberOfColumns;
+
+        if (rows >= this.MIN_ROW_SIZE) {
+            // Checks if all slots from last row are EMPTY
+            const lastRow = this._currentSlots.slice(-this._numberOfColumns);
+            const busyCount = lastRow.filter(el => el.state === 'BUSY').length;
+
+            const restOfGrid = this._currentSlots.slice(0, this._numberOfColumns);
+            const emptyCount = restOfGrid.filter(el => el.state === 'EMPTY').length;
+
+            if (busyCount && emptyCount < this.MIN_EMPTY_SLOT_SIZE) {
+                // Add padding slots
+                const targetSlotSize = (rows + 1) * this._numberOfColumns;
+                const count = targetSlotSize - this.numberOfSlots;
+                this._addEmptySlots(count);
+            } else {
+                // Remove empty slots from last row
+                this._removeEmptySlots(this._numberOfColumns);
+            }
+        } else {
+            const targetSlotSize = this.MIN_ROW_SIZE * this._numberOfColumns;
+            const count = targetSlotSize - this.numberOfSlots;
+            this._addEmptySlots(count);
         }
     }
 
-    // TODO: this isn't tested yet
-    private _purgeEmptySlots(): void {
-        const rows = this.numberOfSlots / this._numberOfColumns;
-        const lastRowIdx = (rows - 1) * this._numberOfColumns;
-        const lastRow = this._currentSlots.slice(-lastRowIdx);
-        const emptyLength = lastRow.reduce((acc, curr) =>
-            curr.state === 'EMPTY'
-                ? acc++
-                : acc
-            , 0);
+    private _addEmptySlots(count: number): void {
+        while (count) { this._insertEmptySlot(); count--; }
+    }
 
-        const isAboveMinRowSize = (rows - 1) >= this.MIN_ROW_SIZE;
-        const isAboveMinEmptySlots = (this.numberOfSlots - emptyLength) >= this.MIN_EMPTY_SLOT_SIZE;
-        const lastRowIsAllEmpty = emptyLength === this._numberOfColumns;
-
-        if (isAboveMinRowSize && isAboveMinEmptySlots && lastRowIsAllEmpty) {
-            this._currentSlots.splice(-lastRowIdx);
-        }
+    private _removeEmptySlots(count: number): void {
+        this._currentSlots.splice(-count);
     }
 
     private _fetchSlot(index: number): Slot {
@@ -127,5 +133,4 @@ export class Grid {
 
         this._currentSlots.push(emptySlot);
     }
-
 }
