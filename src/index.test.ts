@@ -1,29 +1,29 @@
 import { Grid } from './index';
 
 describe("Grid", () => {
-  describe("Init new instances", () => {
-    it("Grid with 1 col per row", () => {
-      const grid = new Grid(1);
+  let grid: Grid;
+
+  describe("New instances with init values", () => {
+    it("1 Column should have 2 slots", () => {
+      grid = new Grid(1);
 
       // Column number: 1
       //      Col1
       // Row1 EMPTY
       // Row2 EMPTY
-      grid.debugGrid();
 
       expect(grid.numberOfSlots).toBe(2);
       expect(grid.numberOfEmptySlots).toBe(2);
       expect(grid.numberOfBusySlots).toBe(0);
     });
 
-    it("Grid with 2 col per row", () => {
-      const grid = new Grid();
+    it("2 Columns should have 4 slots", () => {
+      grid = new Grid();
 
       // Default column number: 2
       //      Col1   Col2
       // Row1 EMPTY  EMPTY
       // Row2 EMPTY  EMPTY
-      grid.debugGrid();
 
       expect(grid.numberOfSlots).toBe(4);
       expect(grid.numberOfEmptySlots).toBe(4);
@@ -31,27 +31,46 @@ describe("Grid", () => {
     });
   });
 
-  describe("Change number of columns value", () => {
-    it("Grid with 3 col per row", () => {
-      const grid = new Grid();
+  describe("Change number of columns", () => {
+    beforeAll(async () => {
+      grid = new Grid();
+    });
 
+    it("3 Columns should have 6 slots", () => {
       // Set column number: 3
-      grid.setNumberOfColumns(3);
+      grid.numberOfColumns = 3;
 
       //      Col1   Col2   Col3
       // Row1 EMPTY  EMPTY  EMPTY
       // Row2 EMPTY  EMPTY  EMPTY
-      grid.debugGrid();
 
       expect(grid.numberOfSlots).toBe(6);
       expect(grid.numberOfEmptySlots).toBe(6);
       expect(grid.numberOfBusySlots).toBe(0);
     });
+
+    it("Error thrown if Column size > 3", () => {
+      expect(() => {
+        grid.numberOfColumns = 5
+      }).toThrow();
+    });
+
+    it("Error thrown if Column size is 0", () => {
+      expect(() => {
+        grid.numberOfColumns = 0
+      }).toThrow();
+    });
+
+    it("Error thrown if Column size < 0", () => {
+      expect(() => {
+        grid.numberOfColumns = -3
+      }).toThrow();
+    });
   });
 
-  describe("Add BUSY slots", () => {
-    it("Force to add another Row", () => {
-      const grid = new Grid();
+  describe("Set busy slots", () => {
+    it("Grid expands when there's less than 2 empty slots", () => {
+      grid = new Grid();
 
       grid.onSlotSelected(0);
       grid.onSlotSelected(1);
@@ -61,7 +80,6 @@ describe("Grid", () => {
       // Row1 BUSY   BUSY
       // Row2 BUSY   EMPTY
       // Row3 EMPTY  EMPTY
-      grid.debugGrid();
 
       expect(grid.numberOfSlots).toBe(6);
       expect(grid.numberOfEmptySlots).toBe(3);
@@ -70,9 +88,9 @@ describe("Grid", () => {
   });
 
 
-  describe("Remove BUSY slots", () => {
-    it("Force to remove last Row", () => {
-      const grid = new Grid();
+  describe("Remove busy slots", () => {
+    it("Grid shrinks when needed", () => {
+      grid = new Grid();
 
       grid.onSlotSelected(0);
       grid.onSlotSelected(1);
@@ -82,7 +100,7 @@ describe("Grid", () => {
       //      Col1   Col2
       // Row1 BUSY   EMPTY
       // Row2 BUSY   EMPTY
-      grid.debugGrid();
+      // grid.print();
 
       expect(grid.numberOfSlots).toBe(4);
       expect(grid.numberOfEmptySlots).toBe(2);

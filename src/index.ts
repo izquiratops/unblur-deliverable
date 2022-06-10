@@ -1,10 +1,10 @@
+// There's no such a thing as interval types yet :(
+// https://github.com/microsoft/TypeScript/issues/43505
+// type ColumnRange = 1 | 2 | 3;
+
 interface Slot {
     state: 'EMPTY' | 'BUSY',
 }
-
-// There's no such a thing as interval types yet :(
-// https://github.com/microsoft/TypeScript/issues/43505
-type ColumnRange = 1 | 2 | 3;
 
 export class Grid {
 
@@ -12,9 +12,9 @@ export class Grid {
     private readonly MIN_EMPTY_SLOT_SIZE = 2;
 
     private _currentSlots: Array<Slot>;
-    private _numberOfColumns: ColumnRange;
+    private _numberOfColumns: number;
 
-    constructor(numberOfColumns: ColumnRange = 2) {
+    constructor(numberOfColumns: number = 2) {
         this._currentSlots = [];
         this._numberOfColumns = numberOfColumns;
 
@@ -41,15 +41,20 @@ export class Grid {
         return emptySlots.length;
     }
 
-    onInit() {
-        this._updateSlots();
+    get numberOfColumns(): number {
+        return this._numberOfColumns;
     }
 
-    // This method has a ColumnRange type, this way any number other than
-    // 1, 2 or 3 will be rejected.
-    setNumberOfColumns(value: ColumnRange): void {
-        this._numberOfColumns = value;
+    set numberOfColumns(value: number) {
+        if (value > 0 && value <= 3) {
+            this._numberOfColumns = value;
+            this._updateSlots();
+        } else {
+            throw Error('out of range!');
+        }
+    }
 
+    onInit() {
         this._updateSlots();
     }
 
@@ -67,42 +72,49 @@ export class Grid {
         this._updateSlots();
     }
 
-    debugGrid(): void {
-        let message = '';
+    print(title: string): void {
+        let message = title
+            ? title + '\n'
+            : '';
 
         const states = this._currentSlots.map(el => el.state);
-        for (let row = 0; row < this.numberOfSlots; row = row + this._numberOfColumns) {
-            for (let col = 0; col < this._numberOfColumns; col++) {
-                message += states[row + col] + '\t';
+        for (let idx = 0; idx < this.numberOfSlots; idx++) {
+            message += states[idx];
+            if ((idx + 1) % this.numberOfColumns === 0) {
+                message += '\n';
+            } else {
+                message += '\t';
             }
-            message += '\n';
         }
 
         console.debug(message);
     }
 
     private _updateSlots(): void {
-        const rows = this.numberOfSlots / this._numberOfColumns;
+        const rows = this.numberOfSlots / this.numberOfColumns;
 
         if (rows >= this.MIN_ROW_SIZE) {
-            // Checks if all slots from last row are EMPTY
-            const lastRow = this._currentSlots.slice(-this._numberOfColumns);
+            // Get number of Busy slots on the last row
+            const lastRow = this._currentSlots.slice(-this.numberOfColumns);
             const busyCount = lastRow.filter(el => el.state === 'BUSY').length;
 
-            const restOfGrid = this._currentSlots.slice(0, this._numberOfColumns);
+            // Get number of Empty slots on every row but the last one
+            const restOfGrid = this._currentSlots.slice(0, this.numberOfColumns);
             const emptyCount = restOfGrid.filter(el => el.state === 'EMPTY').length;
 
+            /* Condition to fill the last row:
+             * - There's a busy slot (can't be deleted)
+             * - Without the last row there's not enough empty slots
+             */
             if (busyCount && emptyCount < this.MIN_EMPTY_SLOT_SIZE) {
-                // Add padding slots
-                const targetSlotSize = (rows + 1) * this._numberOfColumns;
+                const targetSlotSize = (rows + 1) * this.numberOfColumns;
                 const count = targetSlotSize - this.numberOfSlots;
                 this._addEmptySlots(count);
             } else {
-                // Remove empty slots from last row
-                this._removeEmptySlots(this._numberOfColumns);
+                this._removeEmptySlots(this.numberOfColumns);
             }
         } else {
-            const targetSlotSize = this.MIN_ROW_SIZE * this._numberOfColumns;
+            const targetSlotSize = this.MIN_ROW_SIZE * this.numberOfColumns;
             const count = targetSlotSize - this.numberOfSlots;
             this._addEmptySlots(count);
         }
