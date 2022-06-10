@@ -1,11 +1,11 @@
-# Unblur deliverable
+### About this project
 
 First of all, don't forget to install the dependencies `npm i`. 
 This project needs just Typescript and Jest (for testing).
 
 After installing the dependencies you can run the tests with `npm run test`.
 
-## How to use
+### How to use
 
 Grids can be used like this:
 

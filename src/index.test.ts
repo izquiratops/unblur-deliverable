@@ -18,9 +18,9 @@ describe("Grid", () => {
     });
 
     it("2 Columns should have 4 slots", () => {
-      grid = new Grid();
+      grid = new Grid(2); // It's the default value
 
-      // Default column number: 2
+      // Column number: 2
       //      Col1   Col2
       // Row1 EMPTY  EMPTY
       // Row2 EMPTY  EMPTY
@@ -72,10 +72,16 @@ describe("Grid", () => {
     it("Grid expands when there's less than 2 empty slots", () => {
       grid = new Grid();
 
+      // After:
+      //      Col1   Col2
+      // Row1 EMPTY  EMPTY
+      // Row2 EMPTY  EMPTY
+
       grid.onSlotSelected(0);
       grid.onSlotSelected(1);
       grid.onSlotSelected(2);
 
+      // Before:
       //      Col1   Col2
       // Row1 BUSY   BUSY
       // Row2 BUSY   EMPTY
@@ -91,6 +97,11 @@ describe("Grid", () => {
   describe("Remove busy slots", () => {
     it("Grid shrinks when needed", () => {
       grid = new Grid();
+
+      // After:
+      //      Col1   Col2
+      // Row1 EMPTY  EMPTY
+      // Row2 EMPTY  EMPTY
 
       grid.onSlotSelected(0);
       grid.onSlotSelected(1);
