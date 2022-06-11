@@ -188,7 +188,11 @@ export class Grid {
                 busyCount === 0 &&
                 this.numberOfRows - 1 >= this.MIN_ROW_SIZE &&
                 this.numberOfEmptySlots - emptyCount >= this.MIN_EMPTY_SLOT_SIZE
-            ) { 
+            ) {
+                // It's OK to get rid of the last row if:
+                //  - There's no Busy slots there
+                //  - The grid keeps meeting the min row size restriction
+                //  - The grid keeps meeting the min Empty slot size restriction
                 this.removeEmptySlots(this.numberOfColumns);
             } else {
                 break;
