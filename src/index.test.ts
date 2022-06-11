@@ -5,7 +5,8 @@ describe("Grid", () => {
 
   describe("New instances with init values", () => {
     it("1 Column should have 2 slots", () => {
-      grid = new Grid(1);
+      grid = new Grid();
+      grid.numberOfColumns = 1;
 
       // Column number: 1
       //      Col1
@@ -18,7 +19,7 @@ describe("Grid", () => {
     });
 
     it("2 Columns should have 4 slots", () => {
-      grid = new Grid(2); // It's the default value
+      grid = new Grid();
 
       // Column number: 2
       //      Col1   Col2
@@ -94,7 +95,7 @@ describe("Grid", () => {
   });
 
   describe("Check correct behavior of updateSlots()", () => {
-    it("Test 1", () => {
+    it("Selecting / Closing", () => {
       grid = new Grid();
 
       // After:
@@ -116,8 +117,9 @@ describe("Grid", () => {
       expect(grid.numberOfBusySlots).toBe(2);
     });
 
-    it("Test 2", () => {
-      grid = new Grid(1);
+    it("Selecting / Closing with column size change", () => {
+      grid = new Grid();
+      grid.numberOfColumns = 1;
 
       [0, 1, 2, 3, 4, 5, 6, 7].forEach(idx => {
         grid.onSlotSelected(idx);
@@ -128,6 +130,7 @@ describe("Grid", () => {
       });
 
       // grid.print('Before change of columns');
+
       // Before:
       //      Col1
       // Row1 BUSY
@@ -142,6 +145,7 @@ describe("Grid", () => {
       grid.numberOfColumns = 3;
 
       // grid.print('After change of columns');
+
       // After:
       //      Col1   Col2   Col3
       // Row1 BUSY   EMPTY  EMPTY

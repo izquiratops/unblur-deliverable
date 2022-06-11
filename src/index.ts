@@ -38,9 +38,9 @@ export class Grid {
     private _currentSlots: Array<Slot>;
     private _numberOfColumns: number;
 
-    constructor(numberOfColumns: number = 2) {
+    constructor() {
         this._currentSlots = [];
-        this._numberOfColumns = numberOfColumns;
+        this._numberOfColumns = 2;
 
         this.onInit();
     }
@@ -174,7 +174,7 @@ export class Grid {
             this.addEmptySlots(1);
 
             // Debug step by step
-            this.print();
+            // this.print();
         }
 
         while (true) {
