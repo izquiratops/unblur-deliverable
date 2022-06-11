@@ -25,7 +25,8 @@ export interface Slot {
  * Row2    EMPTY  EMPTY  BUSY
  * ```
  * 
- * The current slot stack is: ['EMPTY', 'BUSY', 'EMPTY', 'EMPTY', 'EMPTY', 'BUSY']
+ * The slots are stored in a stack:
+ * `['EMPTY', 'BUSY', 'EMPTY', 'EMPTY', 'EMPTY', 'BUSY']`
  * 
  * @author Jordi Izquierdo Casares
  * @class
@@ -53,7 +54,7 @@ export class Grid {
     }
 
     /**
-     * @return {number} 'BUSY' slot count
+     * @return {number} Busy slot count
      */
     get numberOfBusySlots(): number {
         const busySlots = this._currentSlots.filter(
@@ -64,7 +65,7 @@ export class Grid {
     }
 
     /**
-     * @return {number} 'EMPTY' slot count
+     * @return {number} Empty slot count
      */
     get numberOfEmptySlots(): number {
         const emptySlots = this._currentSlots.filter(
@@ -89,8 +90,7 @@ export class Grid {
     }
 
     /**
-     * Sets the number of columns.
-     * 
+     * Sets the number of columns, then updates the grid cells.
      * @throws If the number is outside the range 1 to 3.
      */
     set numberOfColumns(value: number) {
@@ -103,7 +103,7 @@ export class Grid {
     }
 
     /**
-     * Sets the state of the target slot to Busy.
+     * Sets the state of the target slot to Busy, then updates the grid cells.
      * @param {number} index Position of the target slot
      */
     onSlotSelected(index: number): void {
@@ -114,7 +114,7 @@ export class Grid {
     }
 
     /**
-     * Sets the state of the target slot to Empty.
+     * Sets the state of the target slot to Empty, then updates the grid cells.
      * @param {number} index Position of the target slot
      */
     onSlotClosed(index: number): void {
@@ -147,8 +147,7 @@ export class Grid {
     }
 
     /**
-     * Runs the initial instructions to build the grid.
-     * It's called only once on startup. 
+     * Runs the initial instructions to build the grid. It's called only on startup. 
      * @private
      */
     private onInit() {
@@ -159,8 +158,8 @@ export class Grid {
      * It's fired everytime the user changes the grid state.
      * 
      * Takes care of:
-     *  - Getting rid of useless rows.
      *  - Fit the last row to match the column size.
+     *  - Getting rid of useless rows.
      * @private
      */
     private updateSlots(): void {
@@ -180,8 +179,10 @@ export class Grid {
         while (true) {
             const lastRow = this._currentSlots.slice(-this.numberOfColumns);
             const busyCount = lastRow.reduce((acc, curr) =>
-                curr.state === 'BUSY' ? ++acc : acc, 0
-            );
+                curr.state === 'BUSY' 
+                    ? ++acc
+                    : acc
+                , 0);
             const emptyCount = this.numberOfColumns - busyCount;
 
             if (
@@ -201,7 +202,7 @@ export class Grid {
     }
 
     /**
-     * Pushes a number of 'EMPTY' slots into the slot stack.
+     * Pushes Empty slots into the grid `count` times.
      * @private
      * @param count Number of slots to be added
      */
@@ -217,7 +218,7 @@ export class Grid {
     }
 
     /**
-     * Pops a number of 'EMPTY' slots from the slot stack.
+     * Pops Empty slots from the grid `count` times.
      * @private
      * @param count Number of slots to be removed
      */
@@ -228,8 +229,8 @@ export class Grid {
     /**
      * Returns the {@link Slot} object that belongs to the index position.
      * @private
-     * @param index Stack position
-     * @returns The {@link Slot} object
+     * @param index Position in the slot stack
+     * @returns The slot object
      * @throws Will throw if the index is out of range
      */
     private fetchSlot(index: number): Slot {
