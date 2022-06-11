@@ -77,9 +77,9 @@ describe("Grid", () => {
       // Row1 EMPTY  EMPTY
       // Row2 EMPTY  EMPTY
 
-      grid.onSlotSelected(0);
-      grid.onSlotSelected(1);
-      grid.onSlotSelected(2);
+      [0, 1, 2].forEach(idx => {
+        grid.onSlotSelected(idx);
+      });
 
       // Before:
       //      Col1   Col2
@@ -93,9 +93,8 @@ describe("Grid", () => {
     });
   });
 
-
-  describe("Remove busy slots", () => {
-    it("Grid shrinks when needed", () => {
+  describe("Check correct behavior of updateSlots()", () => {
+    it("Test 1", () => {
       grid = new Grid();
 
       // After:
@@ -111,11 +110,47 @@ describe("Grid", () => {
       //      Col1   Col2
       // Row1 BUSY   EMPTY
       // Row2 BUSY   EMPTY
-      // grid.print();
 
       expect(grid.numberOfSlots).toBe(4);
       expect(grid.numberOfEmptySlots).toBe(2);
       expect(grid.numberOfBusySlots).toBe(2);
+    });
+
+    it("Test 2", () => {
+      grid = new Grid(1);
+
+      [0, 1, 2, 3, 4, 5, 6, 7].forEach(idx => {
+        grid.onSlotSelected(idx);
+      });
+
+      [1, 2, 6].forEach(idx => {
+         grid.onSlotClosed(idx);
+      });
+
+      // grid.print('Before change of columns');
+      // Before:
+      //      Col1
+      // Row1 BUSY
+      // Row2 EMPTY
+      // Row3 EMPTY
+      // Row4 BUSY
+      // Row5 BUSY
+      // Row6 BUSY
+      // Row7 EMPTY
+      // Row8 BUSY
+
+      grid.numberOfColumns = 3;
+
+      // grid.print('After change of columns');
+      // After:
+      //      Col1   Col2   Col3
+      // Row1 BUSY   EMPTY  EMPTY
+      // Row2 BUSY   BUSY   BUSY
+      // Row3 EMPTY  BUSY   EMPTY
+
+      expect(grid.numberOfSlots).toBe(9);
+      expect(grid.numberOfEmptySlots).toBe(4);
+      expect(grid.numberOfBusySlots).toBe(5);
     });
   });
 });

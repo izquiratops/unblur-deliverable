@@ -75,6 +75,13 @@ export class Grid {
     }
 
     /**
+     * @return {number} Row grid size
+     */
+    get numberOfRows(): number {
+        return this.numberOfSlots / this.numberOfColumns;
+    }
+
+    /**
      * @return {number} Column grid size
      */
     get numberOfColumns(): number {
@@ -89,7 +96,7 @@ export class Grid {
     set numberOfColumns(value: number) {
         if (value > 0 && value <= 3) {
             this._numberOfColumns = value;
-            this._updateSlots();
+            this.updateSlots();
         } else {
             throw Error('out of range!');
         }
@@ -100,10 +107,10 @@ export class Grid {
      * @param {number} index Position of the target slot
      */
     onSlotSelected(index: number): void {
-        const slot = this._fetchSlot(index);
+        const slot = this.fetchSlot(index);
         slot.state = 'BUSY';
 
-        this._updateSlots();
+        this.updateSlots();
     }
 
     /**
@@ -111,10 +118,10 @@ export class Grid {
      * @param {number} index Position of the target slot
      */
     onSlotClosed(index: number): void {
-        const slot = this._fetchSlot(index);
+        const slot = this.fetchSlot(index);
         slot.state = 'EMPTY';
 
-        this._updateSlots();
+        this.updateSlots();
     }
 
     /**
@@ -145,7 +152,7 @@ export class Grid {
      * @private
      */
     private onInit() {
-        this._updateSlots();
+        this.updateSlots();
     }
 
     /**
@@ -156,36 +163,36 @@ export class Grid {
      *  - Fit the last row to match the column size.
      * @private
      */
-    private _updateSlots(): void {
-        const rows = this.numberOfSlots / this.numberOfColumns;
+    private updateSlots(): void {
+        while (true) {
+            if (
+                this.numberOfRows % 1 === 0 &&
+                this.numberOfRows >= this.MIN_ROW_SIZE &&
+                this.numberOfEmptySlots >= this.MIN_EMPTY_SLOT_SIZE
+            ) { break; }
 
-        // Has the grid enough rows?
-        if (rows >= this.MIN_ROW_SIZE) {
-            // Get number of 'BUSY' slots on the LAST row
+            this.addEmptySlots(1);
+
+            // Debug step by step
+            this.print();
+        }
+
+        while (true) {
             const lastRow = this._currentSlots.slice(-this.numberOfColumns);
-            const busyCount = lastRow.filter(el => el.state === 'BUSY').length;
+            const busyCount = lastRow.reduce((acc, curr) =>
+                curr.state === 'BUSY' ? ++acc : acc, 0
+            );
+            const emptyCount = this.numberOfColumns - busyCount;
 
-            // Get number of 'EMPTY' slots on every row BUT the last one
-            const restOfGrid = this._currentSlots.slice(0, this.numberOfColumns);
-            const emptyCount = restOfGrid.filter(el => el.state === 'EMPTY').length;
-
-            /* Condition to keep the last row:
-             *      - There's at least one busy slot
-             *      - Without the last row there's not enough 'EMPTY' slots
-             * 
-             * Else: we don't need useless slots stacking at the end
-             */
-            if (busyCount && emptyCount < this.MIN_EMPTY_SLOT_SIZE) {
-                const targetSlotSize = (rows + 1) * this.numberOfColumns;
-                const count = targetSlotSize - this.numberOfSlots;
-                this._addEmptySlots(count);
+            if (
+                busyCount === 0 &&
+                this.numberOfRows - 1 >= this.MIN_ROW_SIZE &&
+                this.numberOfEmptySlots - emptyCount >= this.MIN_EMPTY_SLOT_SIZE
+            ) { 
+                this.removeEmptySlots(this.numberOfColumns);
             } else {
-                this._removeEmptySlots(this.numberOfColumns);
+                break;
             }
-        } else {
-            const targetSlotSize = this.MIN_ROW_SIZE * this.numberOfColumns;
-            const count = targetSlotSize - this.numberOfSlots;
-            this._addEmptySlots(count);
         }
     }
 
@@ -194,7 +201,7 @@ export class Grid {
      * @private
      * @param count Number of slots to be added
      */
-    private _addEmptySlots(count: number): void {
+    private addEmptySlots(count: number): void {
         while (count) {
             const emptySlot: Slot = {
                 state: 'EMPTY'
@@ -210,7 +217,7 @@ export class Grid {
      * @private
      * @param count Number of slots to be removed
      */
-    private _removeEmptySlots(count: number): void {
+    private removeEmptySlots(count: number): void {
         this._currentSlots.splice(-count);
     }
 
@@ -221,7 +228,7 @@ export class Grid {
      * @returns The {@link Slot} object
      * @throws Will throw if the index is out of range
      */
-    private _fetchSlot(index: number): Slot {
+    private fetchSlot(index: number): Slot {
         const slot = this._currentSlots[index];
 
         if (slot) {
