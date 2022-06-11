@@ -1,21 +1,39 @@
-// TODO: remove links that can't be recognized
+/**
+ * Every possible {@link Slot} state.
+ */
+export type SlotState = 'EMPTY' | 'BUSY';
 
 /**
- * Smallest unit of the Grid. Represents the content on every cell of the {@link Grid}.
+ * Smallest unit of the {@link Grid}. Represents the content on every cell.
+ * @typedef Slot
  */
-interface Slot {
-    state: 'EMPTY' | 'BUSY',
+export interface Slot {
+    /**
+     * @param state {SlotState} Current state of the Slot.
+     */
+    state: SlotState,
 }
 
 /**
- * TODO: The grid itself.
- * @author Jordi Izquierdo
+ * The Grid is a collection of Slots `_currentSlots` distributed in different rows and columns indicated
+ * by the variable `_numberOfColumns`.
+ * 
+ * A Grid has the following aspect:
+ * ```
+ *         Col1   Col2   Col3
+ * Row1    EMPTY  BUSY   EMPTY
+ * Row2    EMPTY  EMPTY  BUSY
+ * ```
+ * 
+ * The current slot stack is: ['EMPTY', 'BUSY', 'EMPTY', 'EMPTY', 'EMPTY', 'BUSY']
+ * 
+ * @author Jordi Izquierdo Casares
  * @class
  */
 export class Grid {
 
-    private readonly MIN_ROW_SIZE = 2;
-    private readonly MIN_EMPTY_SLOT_SIZE = 2;
+    private readonly MIN_ROW_SIZE: number = 2;
+    private readonly MIN_EMPTY_SLOT_SIZE: number = 2;
 
     private _currentSlots: Array<Slot>;
     private _numberOfColumns: number;
@@ -28,7 +46,6 @@ export class Grid {
     }
 
     /**
-     * Gives the number of slots.
      * @return {number} Slot count
      */
     get numberOfSlots(): number {
@@ -36,8 +53,7 @@ export class Grid {
     }
 
     /**
-     * Gives the number of slots with Busy state.
-     * @return {number} Busy slot count
+     * @return {number} 'BUSY' slot count
      */
     get numberOfBusySlots(): number {
         const busySlots = this._currentSlots.filter(
@@ -48,8 +64,7 @@ export class Grid {
     }
 
     /**
-     * Gives the number of slots with Empty state.
-     * @return {number} Empty slot count
+     * @return {number} 'EMPTY' slot count
      */
     get numberOfEmptySlots(): number {
         const emptySlots = this._currentSlots.filter(
@@ -60,7 +75,6 @@ export class Grid {
     }
 
     /**
-     * Gives the number of Columns.
      * @return {number} Column grid size
      */
     get numberOfColumns(): number {
@@ -70,7 +84,7 @@ export class Grid {
     /**
      * Sets the number of columns.
      * 
-     * @throws Will throw if the number is outside the range 1 to 3.
+     * @throws If the number is outside the range 1 to 3.
      */
     set numberOfColumns(value: number) {
         if (value > 0 && value <= 3) {
@@ -135,7 +149,11 @@ export class Grid {
     }
 
     /**
-     * TODO: Takes care of the {@link Grid} structure.
+     * It's fired everytime the user changes the grid state.
+     * 
+     * Takes care of:
+     *  - Getting rid of useless rows.
+     *  - Fit the last row to match the column size.
      * @private
      */
     private _updateSlots(): void {
@@ -172,16 +190,23 @@ export class Grid {
     }
 
     /**
-     * Inserts a {@link count} number of empty slots to {@link this._currentSlots}.
+     * Pushes a number of 'EMPTY' slots into the slot stack.
      * @private
      * @param count Number of slots to be added
      */
     private _addEmptySlots(count: number): void {
-        while (count) { this._insertEmptySlot(); count--; }
+        while (count) {
+            const emptySlot: Slot = {
+                state: 'EMPTY'
+            };
+
+            this._currentSlots.push(emptySlot);
+            count--;
+        }
     }
 
     /**
-     * Deletes a {@link count} number of slots from the end of {@link this._currentSlots}.
+     * Pops a number of 'EMPTY' slots from the slot stack.
      * @private
      * @param count Number of slots to be removed
      */
@@ -190,11 +215,11 @@ export class Grid {
     }
 
     /**
-     * Returns the slot of the prompt position.
+     * Returns the {@link Slot} object that belongs to the index position.
      * @private
-     * @param index Position of slot in {@link this._currentSlots}
-     * @returns The {@link Slot} object from the input index
-     * @throws Will throw if an object is not found.
+     * @param index Stack position
+     * @returns The {@link Slot} object
+     * @throws Will throw if the index is out of range
      */
     private _fetchSlot(index: number): Slot {
         const slot = this._currentSlots[index];
@@ -204,17 +229,5 @@ export class Grid {
         } else {
             throw Error('bad index!');
         }
-    }
-
-    /**
-     * Creates a new Empty slot and inserts it into the {@link Grid}.
-     * @private
-     */
-    private _insertEmptySlot(): void {
-        const emptySlot: Slot = {
-            state: 'EMPTY'
-        };
-
-        this._currentSlots.push(emptySlot);
     }
 }

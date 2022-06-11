@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "test": "jest --config jest.config.js",
+    "watch-docs": "typedoc src/index.ts --out docs --watch",
     "generate-docs": "typedoc src/index.ts --out docs"
   },
   "author": "Jordi Izquierdo",
