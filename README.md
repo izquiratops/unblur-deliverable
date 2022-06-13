@@ -21,10 +21,8 @@ Grids can be used like this:
 ``` javascript
 import { Grid } from 'src/index';
 
-// Inits a grid with 3 columns (2 by default)
-const myGrid = new Grid(3);
+const myGrid = new Grid();
 
-myGrid.numberOfColumns = 2;
 grid.onSlotSelected(0);
 grid.onSlotSelected(1);
 grid.onSlotSelected(2);
