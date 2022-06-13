@@ -23,11 +23,11 @@ import { Grid } from 'src/index';
 
 const myGrid = new Grid();
 
-grid.onSlotSelected(0);
-grid.onSlotSelected(1);
-grid.onSlotSelected(2);
+myGrid.onSlotSelected(0);
+myGrid.onSlotSelected(1);
+myGrid.onSlotSelected(2);
 
-grid.print();
+myGrid.print();
 
 /* output:
  * BUSY   BUSY
